@@ -1,0 +1,27 @@
+{
+  "name": "pdf2ppt",
+  "version": "1.0.0",
+  "description": "nodejs pdf转ppt",
+  "scripts": {
+    "test": "node sample.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiandanin/pdf2ppt.git"
+  },
+  "author": "xiandanin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xiandanin/pdf2ppt/issues"
+  },
+  "homepage": "https://github.com/xiandanin/pdf2ppt#readme",
+  "dependencies": {
+    "gm": "^1.23.1",
+    "officegen": "^0.6.4"
+  },
+  "files": [
+    "gm-sync.js",
+    "index.js",
+    "README.md"
+  ]
+}
