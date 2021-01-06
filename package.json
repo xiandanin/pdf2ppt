@@ -1,9 +1,10 @@
 {
   "name": "pdf2ppt",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "nodejs pdf转ppt",
   "scripts": {
-    "test": "node sample.js"
+    "test": "node sample.js",
+    "publish": "npm publish"
   },
   "repository": {
     "type": "git",

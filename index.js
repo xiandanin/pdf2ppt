@@ -55,12 +55,25 @@ async function pdf2ppt (input, output, cacheDir) {
         fs.mkdirSync(outputDir, {recursive: true})
     }
 
-    const writeStream = fs.createWriteStream(output)
-    pptx.generate(writeStream, {})
-    info.output = output
+
+    const pptxGenerate = new Promise((resolve, reject) => {
+        const writeStream = fs.createWriteStream(output)
+        pptx.on('error', function (err) {
+            reject(err)
+        })
+        writeStream.on('error', function (err) {
+            reject(err)
+        })
+        writeStream.on('close', function () {
+            resolve()
+        })
+        pptx.generate(writeStream)
+    })
+    await pptxGenerate
 
     info.createdTime = new Date().getTime()
     info.output = output
+    info.size = fs.statSync(output).size
     info.convertTime = info.createdTime - startTime
     return info
 }
