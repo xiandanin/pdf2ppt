@@ -11,7 +11,13 @@ const path = require('path')
 const input = 'input.pdf'
 const output = 'output.ppt'
 const cacheDir = path.resolve('cache') //缓存目录 可选 默认在输出目录下
-const ppt = await pdf2ppt(input, output, cacheDir);
+const ppt = await pdf2ppt(input, output, {
+    cacheDir,
+    progressCallback: (progress, complete) => {
+        console.info("转换中", `progress: ${progress}`, complete)
+    }
+});
+console.info("转换成功", `${ppt.convertTime}ms`, ppt)
 ```
 
 `pdf2ppt`将会返回以下信息

@@ -7,36 +7,56 @@ const officegen = require('officegen')
 const fs = require("fs")
 const path = require("path")
 
-async function pdf2ppt (input, output, cacheDir) {
-    const startTime = new Date().getTime()
+/**
+ *
+ * @param input 输入文件路径
+ * @param output 输出文件路径
+ * @param cacheDir 缓存路径 可选
+ * @param progressCallback 进度回调 可选
+ * @param isReadInfo 是否读取信息 默认false
+ * @returns {Promise<any>}
+ */
+async function pdf2ppt (input, output, {cacheDir, progressCallback}) {
+    let startTime = new Date().getTime()
 
     const md5 = crypto.createHash('md5').update(fs.readFileSync(input)).digest('hex').toUpperCase();
     //const filenameNoEx = URI(input).suffix("").filename()
+
+    if (progressCallback) {
+        progressCallback(0.1, false)
+    }
 
     const instance = gm(input)
     const features = await getPDFInfo(instance, '{"format":"%m","width":%W,"height":%H,"frameCount":%n}')
     const info = JSON.parse(/{.*?}/.exec(features)[0])
     info.md5 = md5
 
+    const parseProgress = 0.4
+    if (progressCallback) {
+        progressCallback(parseProgress, false)
+    }
     const frames = []
-    if (info.frameCount > 1) {
-        const tempDir = path.resolve(cacheDir || path.resolve(output, '..'), md5)
-        if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir, {recursive: true})
+    const tempDir = path.resolve(cacheDir || path.resolve(output, '..'), md5)
+    if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, {recursive: true})
+    }
+    const frameCount = info.frameCount
+    for (let i = 0; i < frameCount; i++) {
+        const framePath = path.join(tempDir, `${i}.png`)
+        if (fs.existsSync(framePath) && fs.statSync(framePath).size > 0) {
+            //console.debug(`缓存已存在，跳过 ${framePath}`)
+        } else {
+            //console.debug(`生成缓存帧 ${framePath}`)
+            await saveFrame(instance, i, framePath);
         }
-        for (let i = 0; i < info.frameCount; i++) {
-            const framePath = path.join(tempDir, `${i}.png`)
-            if (fs.existsSync(framePath) && fs.statSync(framePath).size > 0) {
-                //console.debug(`缓存已存在，跳过 ${framePath}`)
-            } else {
-                //console.debug(`生成缓存帧 ${framePath}`)
-                await saveFrame(instance, i, framePath)
-            }
-            frames.push(framePath)
+        frames.push(framePath)
+
+        if (progressCallback) {
+            const frameProgress = i / frameCount * 0.4 + parseProgress
+            progressCallback(frameProgress, false)
         }
     }
     info.frames = frames
-
     const pptx = officegen('pptx')
     frames.forEach(function (it) {
         const slide = pptx.makeNewSlide()
@@ -55,7 +75,9 @@ async function pdf2ppt (input, output, cacheDir) {
         fs.mkdirSync(outputDir, {recursive: true})
     }
 
-
+    if (progressCallback) {
+        progressCallback(0.9, false)
+    }
     const pptxGenerate = new Promise((resolve, reject) => {
         const writeStream = fs.createWriteStream(output)
         pptx.on('error', function (err) {
@@ -69,12 +91,17 @@ async function pdf2ppt (input, output, cacheDir) {
         })
         pptx.generate(writeStream)
     })
+
     await pptxGenerate
 
     info.createdTime = new Date().getTime()
     info.output = output
     info.size = fs.statSync(output).size
     info.convertTime = info.createdTime - startTime
+
+    if (progressCallback) {
+        progressCallback(1, true)
+    }
     return info
 }
 

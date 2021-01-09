@@ -14,8 +14,13 @@ async function sample () {
             try {
                 const input = path.join(pdfdir, it)
                 const output = path.join(pptdir, it.replace('.pdf', '.ppt'))
-                if (!fs.existsSync(output)){
-                    const ppt = await pdf2ppt(input, output, cacheDir);
+                if (!fs.existsSync(output)) {
+                    const ppt = await pdf2ppt(input, output, {
+                        cacheDir,
+                        progressCallback: (progress, complete) => {
+                            console.info("转换中", `progress: ${progress}`, complete)
+                        }
+                    });
                     console.info("转换成功", `${ppt.convertTime}ms`, ppt)
                 }
             } catch (e) {
