@@ -1,4 +1,3 @@
-const URI = require('urijs')
 const gm = require('gm')
 const {getPDFInfo, saveFrame} = require('./gm-sync')
 
@@ -11,17 +10,16 @@ const path = require("path")
 /**
  *
  * @param input 输入文件路径
- * @param outputDir 输出文件夹路径
+ * @param output 输出文件
  * @param cacheDir 缓存路径 可选
  * @param progressCallback 进度回调 可选
  * @param isReadInfo 是否读取信息 默认false
  * @returns {Promise<any>}
  */
-async function pdf2ppt (input, outputDir, {cacheDir, progressCallback}) {
+async function pdf2ppt (input, output, {cacheDir, progressCallback}) {
     let startTime = new Date().getTime()
 
-    const output = path.join(outputDir, new URI(input).suffix(".pptx").filename())
-
+    const outputDir = path.resolve(output, '..');
     if (!cacheDir) {
         cacheDir = path.resolve(outputDir, 'cache')
     }

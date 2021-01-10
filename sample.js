@@ -4,6 +4,7 @@ const fs = require('fs')
 
 const pdfdir = path.resolve('pdf')
 const cacheDir = path.resolve('img')
+const outputDir = path.resolve('ppt')
 
 async function sample () {
     const listFiles = fs.readdirSync(pdfdir)
@@ -12,8 +13,8 @@ async function sample () {
         if (it.endsWith('.pdf')) {
             try {
                 const input = path.join(pdfdir, it)
-                const outputDir = path.resolve('ppt')
-                const ppt = await pdf2ppt(input, outputDir, {
+                const output = path.resolve(outputDir, it.replace('.pdf', '.pptx'))
+                const ppt = await pdf2ppt(input, output, {
                     cacheDir,
                     progressCallback: (progress, complete) => {
                         console.info("转换中", `progress: ${progress}`, complete)
