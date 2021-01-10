@@ -1,3 +1,4 @@
+const URI = require('urijs')
 const gm = require('gm')
 const {getPDFInfo, saveFrame} = require('./gm-sync')
 
@@ -10,14 +11,20 @@ const path = require("path")
 /**
  *
  * @param input 输入文件路径
- * @param output 输出文件路径
+ * @param outputDir 输出文件夹路径
  * @param cacheDir 缓存路径 可选
  * @param progressCallback 进度回调 可选
  * @param isReadInfo 是否读取信息 默认false
  * @returns {Promise<any>}
  */
-async function pdf2ppt (input, output, {cacheDir, progressCallback}) {
+async function pdf2ppt (input, outputDir, {cacheDir, progressCallback}) {
     let startTime = new Date().getTime()
+
+    const output = path.join(outputDir, new URI(input).suffix(".pptx").filename())
+
+    if (!cacheDir) {
+        cacheDir = path.resolve(outputDir, 'cache')
+    }
 
     const md5 = crypto.createHash('md5').update(fs.readFileSync(input)).digest('hex').toUpperCase();
     //const filenameNoEx = URI(input).suffix("").filename()
@@ -36,13 +43,12 @@ async function pdf2ppt (input, output, {cacheDir, progressCallback}) {
         progressCallback(parseProgress, false)
     }
     const frames = []
-    const tempDir = path.resolve(cacheDir || path.resolve(output, '..'), md5)
-    if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir, {recursive: true})
+    if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, {recursive: true})
     }
     const frameCount = info.frameCount
     for (let i = 0; i < frameCount; i++) {
-        const framePath = path.join(tempDir, `${i}.png`)
+        const framePath = path.join(cacheDir, `${i}.png`)
         if (fs.existsSync(framePath) && fs.statSync(framePath).size > 0) {
             //console.debug(`缓存已存在，跳过 ${framePath}`)
         } else {
@@ -70,7 +76,6 @@ async function pdf2ppt (input, output, {cacheDir, progressCallback}) {
 
     pptx.setSlideSize(info.width, info.height, 'custom')
 
-    const outputDir = path.resolve(output, '..')
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, {recursive: true})
     }

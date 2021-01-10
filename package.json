@@ -1,6 +1,6 @@
 {
   "name": "pdf2ppt",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "nodejs pdf转ppt",
   "scripts": {
     "test": "node sample.js",
@@ -18,7 +18,8 @@
   "homepage": "https://github.com/xiandanin/pdf2ppt#readme",
   "dependencies": {
     "gm": "^1.23.1",
-    "officegen": "^0.6.4"
+    "officegen": "^0.6.4",
+    "urijs": "^1.19.5"
   },
   "files": [
     "gm-sync.js",

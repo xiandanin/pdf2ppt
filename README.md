@@ -5,13 +5,9 @@ npm install pdf2ppt
 
 ## 示例
 ```
-const pdf2ppt = require('pdf2ppt')
-const path = require('path')
-
-const input = 'input.pdf'
-const output = 'output.ppt'
-const cacheDir = path.resolve('cache') //缓存目录 可选 默认在输出目录下
-const ppt = await pdf2ppt(input, output, {
+const input = path.join(pdfdir, it)
+const outputDir = path.resolve('ppt')
+const ppt = await pdf2ppt(input, outputDir, {
     cacheDir,
     progressCallback: (progress, complete) => {
         console.info("转换中", `progress: ${progress}`, complete)
@@ -48,7 +44,7 @@ console.info("转换成功", `${ppt.convertTime}ms`, ppt)
         "../img/16.png",
         "../img/17.png"
     ],
-    "output":"../ppt/test.ppt",
+    "path":"../ppt/test.ppt",
     "createdTime": 1608469607448
 }
 ```
